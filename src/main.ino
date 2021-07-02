@@ -102,7 +102,9 @@ void sendNoteOn(byte note) {
 }
 
 void sendNoteOff(byte note) {
-
+  midiEventPacket_t noteOn = {0x08, 0x80 | MIDI_CHANNEL, note, MIDI_VELOCITY};
+  MidiUSB.sendMIDI(noteOn);
+  MidiUSB.flush();
 }
 
 void flash(int d) {
