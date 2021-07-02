@@ -20,7 +20,7 @@ const int buttonMidiNotes[] = {
 
 // Number of times a button must be observed to be in a consistent state to send MIDI notes
 // This may be tweaked to alter debouncing performance - lower results in lower
-// latency, but higher chance of false triggers
+// latency, but higher chance of falsely repeated triggers
 const int changeThreshold = 8;
 
 /* State */
@@ -35,7 +35,7 @@ int buttonUnchangedCount[16] = {0};
 // switched to ground when pressed.
 
 void setup() {
-  // Start-up flash sequence
+  // Start-up flash sequence (three times long, three times short)
   flash(100);
   flash(100);
   flash(100);
@@ -50,9 +50,9 @@ void setup() {
 }
 
 void loop() {
-  // Loop to read all button states
+  // Loop through all buttons to read all button states
   for (int i=0; i<16; i++) {
-    // Read the current state for the current button
+    // Detect the current state for the current button
     int state = digitalRead(buttonPins[i]);
 
     if (state == buttonLastState[i]) {
@@ -64,19 +64,34 @@ void loop() {
       buttonUnchangedCount[i] = 0;
     }
 
+    // Check to see if we've reached the detection threshold for debouncing
     if (buttonUnchangedCount >= changeThreshold) {
-      // Update the button's current state
-      buttonState[i] = state;
+      // Stash the last state into a local variable
+      lastState = buttonState[i];
 
       // We have reached the trigger threshold, send MIDI notes
-      if (state == LOW) {
-        
+      if (state == LOW && lastState == HIGH) {
+        sendNoteOn(buttonMidiNotes[i]);
+      } else if (state == HIGH && lastState == LOW) {
+        sendNoteOff(buttonMidiNotes[i]);
+      } else { /* Do nothing, no state change */ }
       
+      // Update the button's current state
+      buttonState[i] = state;
     }
 
+    // Update the last checked instantaneous button state
     buttonLastState[i] = state;
   }
- }
+}
+
+void sendNoteOn(int note) {
+
+}
+
+void sendNoteOff(int note) {
+
+}
 
 void flash(int d) {
   digitalWrite(LED_BUILTIN, HIGH);
