@@ -35,6 +35,14 @@ int buttonUnchangedCount[16] = {0};
 // switched to ground when pressed.
 
 void setup() {
+  // Start-up flash sequence
+  flash(100);
+  flash(100);
+  flash(100);
+  flash(50);
+  flash(50);
+  flash(50);
+
   // Set all pins as inputs, enable internal pull up resistors to positive supply (Vdd)
   for (int i=0; i<16; i++) {
     pinMode(buttonPins[i], INPUT_PULLUP);
@@ -57,10 +65,22 @@ void loop() {
     }
 
     if (buttonUnchangedCount >= changeThreshold) {
-      // We have reached the trigger thresold
+      // Update the button's current state
+      buttonState[i] = state;
+
+      // We have reached the trigger threshold, send MIDI notes
+      if (state == LOW) {
+        
       
     }
 
     buttonLastState[i] = state;
   }
  }
+
+void flash(int d) {
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(d);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(d);
+}
