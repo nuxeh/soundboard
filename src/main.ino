@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "MIDIUSB.h"
 
 /* Constants, may be changed as desired */
 
@@ -9,7 +10,7 @@ const int buttonPins[] = {
   2,  3,  4,  5
 };
 
-const int buttonMidiNotes[] = {
+const byte buttonMidiNotes[] = {
   72, 73, 74, 75,
   68, 69, 70, 71,
   64, 65, 66, 67,
@@ -22,6 +23,10 @@ const int buttonMidiNotes[] = {
 // This may be tweaked to alter debouncing performance - lower results in lower
 // latency, but higher chance of falsely repeated triggers
 const int changeThreshold = 8;
+
+// MIDI channel and velocity (loudness) to send
+#define MIDI_CHANNEL 1
+#define MIDI_VELOCITY 127
 
 /* State */
 // This is mostly state to track button states, and perform switch debouncing.
@@ -65,7 +70,7 @@ void loop() {
     }
 
     // Check to see if we've reached the detection threshold for debouncing
-    if (buttonUnchangedCount >= changeThreshold) {
+    if (buttonUnchangedCount[i] >= changeThreshold) {
       // Stash the last state into a local variable
       int lastState = buttonState[i];
 
@@ -85,11 +90,18 @@ void loop() {
   }
 }
 
-void sendNoteOn(int note) {
-
+// First parameter is the event type (0x09 = note on, 0x08 = note off).
+// Second parameter is note-on/note-off, combined with the channel.
+// Channel can be anything between 0-15. Typically reported to the user as 1-16.
+// Third parameter is the note number (48 = middle C).
+// Fourth parameter is the velocity (64 = normal, 127 = fastest).
+void sendNoteOn(byte note) {
+  midiEventPacket_t noteOn = {0x09, 0x90 | MIDI_CHANNEL, note, MIDI_VELOCITY};
+  MidiUSB.sendMIDI(noteOn);
+  MidiUSB.flush();
 }
 
-void sendNoteOff(int note) {
+void sendNoteOff(byte note) {
 
 }
 
