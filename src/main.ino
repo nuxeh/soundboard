@@ -83,6 +83,9 @@ void loop() {
       
       // Update the button's current state
       buttonState[i] = state;
+
+      // Reset the counter
+      buttonUnchangedCount[i] = 0;
     }
 
     // Update the last checked instantaneous button state
