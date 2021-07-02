@@ -67,7 +67,7 @@ void loop() {
     // Check to see if we've reached the detection threshold for debouncing
     if (buttonUnchangedCount >= changeThreshold) {
       // Stash the last state into a local variable
-      lastState = buttonState[i];
+      int lastState = buttonState[i];
 
       // We have reached the trigger threshold, send MIDI notes
       if (state == LOW && lastState == HIGH) {
